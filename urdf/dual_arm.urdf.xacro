@@ -1,0 +1,316 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="jaka_dual_arm">
+
+  <link name="world"/>
+
+  <!-- ===== LEFT ARM ===== -->
+  <link name="left_base_link"/>
+  <joint name="world_to_left_base" type="fixed">
+    <parent link="world"/>
+    <child link="left_base_link"/>
+    <origin xyz="0 0.18 1.16" rpy="1.5708 0 0"/>
+  </joint>
+
+  <link name="left_J1">
+    <visual><origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry><mesh filename="package://jaka_description/meshes/jaka_a12_meshes/J1.STL"/></geometry>
+      <material name="lg"><color rgba="0.6 0.8 0.6 1"/></material>
+    </visual>
+    <collision><origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry><mesh filename="package://jaka_description/meshes/jaka_a12_meshes/J1.STL"/></geometry>
+    </collision>
+    <inertial><mass value="5.0"/><origin xyz="0 0 0" rpy="0 0 0"/>
+      <inertia ixx="0.05" ixy="0" ixz="0" iyy="0.05" iyz="0" izz="0.05"/>
+    </inertial>
+  </link>
+  <joint name="left_joint_1" type="revolute">
+    <parent link="left_base_link"/><child link="left_J1"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/><axis xyz="0 0 1"/>
+    <limit lower="-6.28" upper="6.28" effort="8000" velocity="1.92"/>
+  </joint>
+
+  <link name="left_J2">
+    <visual><origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry><mesh filename="package://jaka_description/meshes/jaka_a12_meshes/J2.STL"/></geometry>
+      <material name="lg"><color rgba="0.6 0.8 0.6 1"/></material>
+    </visual>
+    <collision><origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry><mesh filename="package://jaka_description/meshes/jaka_a12_meshes/J2.STL"/></geometry>
+    </collision>
+    <inertial><mass value="13.37"/><origin xyz="0.32342 0 0.1801" rpy="0 0 0"/>
+      <inertia ixx="0.038258" ixy="0" ixz="-0.0030725" iyy="1.0882" iyz="0" izz="1.0803"/>
+    </inertial>
+  </link>
+  <joint name="left_joint_2" type="revolute">
+    <parent link="left_J1"/><child link="left_J2"/>
+    <origin xyz="0 0 0" rpy="1.5708 0 0"/><axis xyz="0 0 1"/>
+    <limit lower="-6.28" upper="6.28" effort="8000" velocity="2.62"/>
+  </joint>
+
+  <link name="left_J3">
+    <visual><origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry><mesh filename="package://jaka_description/meshes/jaka_a12_meshes/J3.STL"/></geometry>
+      <material name="lg"><color rgba="0.6 0.8 0.6 1"/></material>
+    </visual>
+    <collision><origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry><mesh filename="package://jaka_description/meshes/jaka_a12_meshes/J3.STL"/></geometry>
+    </collision>
+    <inertial><mass value="1.9435"/><origin xyz="0 -0.0024273 0.002914" rpy="0 0 0"/>
+      <inertia ixx="0.0057394" ixy="0" ixz="0" iyy="0.0038913" iyz="0" izz="0.0056521"/>
+    </inertial>
+  </link>
+  <joint name="left_joint_3" type="revolute">
+    <parent link="left_J2"/><child link="left_J3"/>
+    <origin xyz="0.77 0 0.0375" rpy="0 0 1.5708"/><axis xyz="0 0 1"/>
+    <limit lower="-6.28" upper="6.28" effort="8000" velocity="3.67"/>
+  </joint>
+
+  <link name="left_J4">
+    <visual><origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry><mesh filename="package://jaka_description/meshes/jaka_a12_meshes/J4.STL"/></geometry>
+      <material name="lb"><color rgba="0.5 0.7 0.9 1"/></material>
+    </visual>
+    <collision><origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry><mesh filename="package://jaka_description/meshes/jaka_a12_meshes/J4.STL"/></geometry>
+    </collision>
+    <inertial><mass value="3.903"/><origin xyz="0 -0.00097336 -0.21333" rpy="0 0 0"/>
+      <inertia ixx="0.10135" ixy="0" ixz="0" iyy="0.10077" iyz="0.00080984" izz="0.0051085"/>
+    </inertial>
+  </link>
+  <joint name="left_joint_4" type="revolute">
+    <parent link="left_J3"/><child link="left_J4"/>
+    <origin xyz="0 -0.5515 0" rpy="-1.5708 0 -3.1416"/><axis xyz="0 0 1"/>
+    <limit lower="-6.28" upper="6.28" effort="2000" velocity="3.67"/>
+  </joint>
+
+  <link name="left_J5">
+    <visual><origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry><mesh filename="package://jaka_description/meshes/jaka_a12_meshes/J5.STL"/></geometry>
+      <material name="lg"><color rgba="0.6 0.8 0.6 1"/></material>
+    </visual>
+    <collision><origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry><mesh filename="package://jaka_description/meshes/jaka_a12_meshes/J5.STL"/></geometry>
+    </collision>
+    <inertial><mass value="1.0253"/><origin xyz="0 0.0049095 -0.0024985" rpy="0 0 0"/>
+      <inertia ixx="0.0022543" ixy="0" ixz="0" iyy="0.0011832" iyz="-0.000013434" izz="0.0022184"/>
+    </inertial>
+  </link>
+  <joint name="left_joint_5" type="revolute">
+    <parent link="left_J4"/><child link="left_J5"/>
+    <origin xyz="0 -0.115 0" rpy="-1.5708 -1.5708 3.1416"/><axis xyz="0 0 1"/>
+    <limit lower="-6.28" upper="6.28" effort="3000" velocity="3.67"/>
+  </joint>
+
+  <link name="left_J6">
+    <visual><origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry><mesh filename="package://jaka_description/meshes/jaka_a12_meshes/J6.STL"/></geometry>
+      <material name="lb"><color rgba="0.5 0.7 0.9 1"/></material>
+    </visual>
+    <collision><origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry><mesh filename="package://jaka_description/meshes/jaka_a12_meshes/J6.STL"/></geometry>
+    </collision>
+    <inertial><mass value="0.2135"/><origin xyz="0 0 -0.020571" rpy="0 0 0"/>
+      <inertia ixx="0.00012541" ixy="0" ixz="0" iyy="0.00012595" iyz="0" izz="0.00021163"/>
+    </inertial>
+  </link>
+  <joint name="left_joint_6" type="revolute">
+    <parent link="left_J5"/><child link="left_J6"/>
+    <origin xyz="0 -0.1035 0" rpy="1.5708 0 0"/><axis xyz="0 0 1"/>
+    <limit lower="-6.28" upper="6.28" effort="1000" velocity="3.67"/>
+  </joint>
+
+  <link name="left_flange"/>
+  <joint name="left_joint_flange" type="fixed">
+    <parent link="left_J6"/><child link="left_flange"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+  </joint>
+
+  <!-- ===== RIGHT ARM ===== -->
+  <link name="right_base_link"/>
+  <joint name="world_to_right_base" type="fixed">
+    <parent link="world"/>
+    <child link="right_base_link"/>
+    <origin xyz="0 -0.18 1.16" rpy="1.5708 0 3.1416"/>
+  </joint>
+
+  <link name="right_J1">
+    <visual><origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry><mesh filename="package://jaka_description/meshes/jaka_a12_meshes/J1.STL"/></geometry>
+      <material name="ro"><color rgba="0.9 0.6 0.3 1"/></material>
+    </visual>
+    <collision><origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry><mesh filename="package://jaka_description/meshes/jaka_a12_meshes/J1.STL"/></geometry>
+    </collision>
+    <inertial><mass value="5.0"/><origin xyz="0 0 0" rpy="0 0 0"/>
+      <inertia ixx="0.05" ixy="0" ixz="0" iyy="0.05" iyz="0" izz="0.05"/>
+    </inertial>
+  </link>
+  <joint name="right_joint_1" type="revolute">
+    <parent link="right_base_link"/><child link="right_J1"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/><axis xyz="0 0 1"/>
+    <limit lower="-6.28" upper="6.28" effort="8000" velocity="1.92"/>
+  </joint>
+
+  <link name="right_J2">
+    <visual><origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry><mesh filename="package://jaka_description/meshes/jaka_a12_meshes/J2.STL"/></geometry>
+      <material name="ro"><color rgba="0.9 0.6 0.3 1"/></material>
+    </visual>
+    <collision><origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry><mesh filename="package://jaka_description/meshes/jaka_a12_meshes/J2.STL"/></geometry>
+    </collision>
+    <inertial><mass value="13.37"/><origin xyz="0.32342 0 0.1801" rpy="0 0 0"/>
+      <inertia ixx="0.038258" ixy="0" ixz="-0.0030725" iyy="1.0882" iyz="0" izz="1.0803"/>
+    </inertial>
+  </link>
+  <joint name="right_joint_2" type="revolute">
+    <parent link="right_J1"/><child link="right_J2"/>
+    <origin xyz="0 0 0" rpy="1.5708 0 0"/><axis xyz="0 0 1"/>
+    <limit lower="-6.28" upper="6.28" effort="8000" velocity="2.62"/>
+  </joint>
+
+  <link name="right_J3">
+    <visual><origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry><mesh filename="package://jaka_description/meshes/jaka_a12_meshes/J3.STL"/></geometry>
+      <material name="ro"><color rgba="0.9 0.6 0.3 1"/></material>
+    </visual>
+    <collision><origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry><mesh filename="package://jaka_description/meshes/jaka_a12_meshes/J3.STL"/></geometry>
+    </collision>
+    <inertial><mass value="1.9435"/><origin xyz="0 -0.0024273 0.002914" rpy="0 0 0"/>
+      <inertia ixx="0.0057394" ixy="0" ixz="0" iyy="0.0038913" iyz="0" izz="0.0056521"/>
+    </inertial>
+  </link>
+  <joint name="right_joint_3" type="revolute">
+    <parent link="right_J2"/><child link="right_J3"/>
+    <origin xyz="0.77 0 0.0375" rpy="0 0 1.5708"/><axis xyz="0 0 1"/>
+    <limit lower="-6.28" upper="6.28" effort="8000" velocity="3.67"/>
+  </joint>
+
+  <link name="right_J4">
+    <visual><origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry><mesh filename="package://jaka_description/meshes/jaka_a12_meshes/J4.STL"/></geometry>
+      <material name="ry"><color rgba="0.9 0.8 0.3 1"/></material>
+    </visual>
+    <collision><origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry><mesh filename="package://jaka_description/meshes/jaka_a12_meshes/J4.STL"/></geometry>
+    </collision>
+    <inertial><mass value="3.903"/><origin xyz="0 -0.00097336 -0.21333" rpy="0 0 0"/>
+      <inertia ixx="0.10135" ixy="0" ixz="0" iyy="0.10077" iyz="0.00080984" izz="0.0051085"/>
+    </inertial>
+  </link>
+  <joint name="right_joint_4" type="revolute">
+    <parent link="right_J3"/><child link="right_J4"/>
+    <origin xyz="0 -0.5515 0" rpy="-1.5708 0 -3.1416"/><axis xyz="0 0 1"/>
+    <limit lower="-6.28" upper="6.28" effort="2000" velocity="3.67"/>
+  </joint>
+
+  <link name="right_J5">
+    <visual><origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry><mesh filename="package://jaka_description/meshes/jaka_a12_meshes/J5.STL"/></geometry>
+      <material name="ro"><color rgba="0.9 0.6 0.3 1"/></material>
+    </visual>
+    <collision><origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry><mesh filename="package://jaka_description/meshes/jaka_a12_meshes/J5.STL"/></geometry>
+    </collision>
+    <inertial><mass value="1.0253"/><origin xyz="0 0.0049095 -0.0024985" rpy="0 0 0"/>
+      <inertia ixx="0.0022543" ixy="0" ixz="0" iyy="0.0011832" iyz="-0.000013434" izz="0.0022184"/>
+    </inertial>
+  </link>
+  <joint name="right_joint_5" type="revolute">
+    <parent link="right_J4"/><child link="right_J5"/>
+    <origin xyz="0 -0.115 0" rpy="-1.5708 -1.5708 3.1416"/><axis xyz="0 0 1"/>
+    <limit lower="-6.28" upper="6.28" effort="3000" velocity="3.67"/>
+  </joint>
+
+  <link name="right_J6">
+    <visual><origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry><mesh filename="package://jaka_description/meshes/jaka_a12_meshes/J6.STL"/></geometry>
+      <material name="ry"><color rgba="0.9 0.8 0.3 1"/></material>
+    </visual>
+    <collision><origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry><mesh filename="package://jaka_description/meshes/jaka_a12_meshes/J6.STL"/></geometry>
+    </collision>
+    <inertial><mass value="0.2135"/><origin xyz="0 0 -0.020571" rpy="0 0 0"/>
+      <inertia ixx="0.00012541" ixy="0" ixz="0" iyy="0.00012595" iyz="0" izz="0.00021163"/>
+    </inertial>
+  </link>
+  <joint name="right_joint_6" type="revolute">
+    <parent link="right_J5"/><child link="right_J6"/>
+    <origin xyz="0 -0.1035 0" rpy="1.5708 0 0"/><axis xyz="0 0 1"/>
+    <limit lower="-6.28" upper="6.28" effort="1000" velocity="3.67"/>
+  </joint>
+
+  <link name="right_flange"/>
+  <joint name="right_joint_flange" type="fixed">
+    <parent link="right_J6"/><child link="right_flange"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+  </joint>
+
+	<ros2_control name="dual_arm_fake" type="system">
+    <hardware>
+      <plugin>mock_components/GenericSystem</plugin>
+    </hardware>
+    <joint name="left_joint_1">
+      <command_interface name="position"/>
+      <state_interface name="position"><param name="initial_value">0.0</param></state_interface>
+      <state_interface name="velocity"/>
+    </joint>
+    <joint name="left_joint_2">
+      <command_interface name="position"/>
+      <state_interface name="position"><param name="initial_value">0.0</param></state_interface>
+      <state_interface name="velocity"/>
+    </joint>
+    <joint name="left_joint_3">
+      <command_interface name="position"/>
+      <state_interface name="position"><param name="initial_value">0.0</param></state_interface>
+      <state_interface name="velocity"/>
+    </joint>
+    <joint name="left_joint_4">
+      <command_interface name="position"/>
+      <state_interface name="position"><param name="initial_value">0.0</param></state_interface>
+      <state_interface name="velocity"/>
+    </joint>
+    <joint name="left_joint_5">
+      <command_interface name="position"/>
+      <state_interface name="position"><param name="initial_value">0.0</param></state_interface>
+      <state_interface name="velocity"/>
+    </joint>
+    <joint name="left_joint_6">
+      <command_interface name="position"/>
+      <state_interface name="position"><param name="initial_value">0.0</param></state_interface>
+      <state_interface name="velocity"/>
+    </joint>
+    <joint name="right_joint_1">
+      <command_interface name="position"/>
+      <state_interface name="position"><param name="initial_value">0.0</param></state_interface>
+      <state_interface name="velocity"/>
+    </joint>
+    <joint name="right_joint_2">
+      <command_interface name="position"/>
+      <state_interface name="position"><param name="initial_value">0.0</param></state_interface>
+      <state_interface name="velocity"/>
+    </joint>
+    <joint name="right_joint_3">
+      <command_interface name="position"/>
+      <state_interface name="position"><param name="initial_value">0.0</param></state_interface>
+      <state_interface name="velocity"/>
+    </joint>
+    <joint name="right_joint_4">
+      <command_interface name="position"/>
+      <state_interface name="position"><param name="initial_value">0.0</param></state_interface>
+      <state_interface name="velocity"/>
+    </joint>
+    <joint name="right_joint_5">
+      <command_interface name="position"/>
+      <state_interface name="position"><param name="initial_value">0.0</param></state_interface>
+      <state_interface name="velocity"/>
+    </joint>
+    <joint name="right_joint_6">
+      <command_interface name="position"/>
+      <state_interface name="position"><param name="initial_value">0.0</param></state_interface>
+      <state_interface name="velocity"/>
+    </joint>
+  </ros2_control>
+
+</robot>

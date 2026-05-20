@@ -1,0 +1,59 @@
+<?xml version="1.0"?>
+<robot name="jaka_dual_arm">
+
+  <group name="left_arm">
+    <joint name="left_joint_1"/>
+    <joint name="left_joint_2"/>
+    <joint name="left_joint_3"/>
+    <joint name="left_joint_4"/>
+    <joint name="left_joint_5"/>
+    <joint name="left_joint_6"/>
+  </group>
+
+  <group name="right_arm">
+    <joint name="right_joint_1"/>
+    <joint name="right_joint_2"/>
+    <joint name="right_joint_3"/>
+    <joint name="right_joint_4"/>
+    <joint name="right_joint_5"/>
+    <joint name="right_joint_6"/>
+  </group>
+
+  <group name="both_arms">
+    <group name="left_arm"/>
+    <group name="right_arm"/>
+  </group>
+
+  <end_effector name="left_ee" parent_link="left_flange" group="left_arm"/>
+  <end_effector name="right_ee" parent_link="right_flange" group="right_arm"/>
+
+  <group_state name="home" group="both_arms">
+    <joint name="left_joint_1" value="0"/>
+    <joint name="left_joint_2" value="0"/>
+    <joint name="left_joint_3" value="0"/>
+    <joint name="left_joint_4" value="0"/>
+    <joint name="left_joint_5" value="0"/>
+    <joint name="left_joint_6" value="0"/>
+    <joint name="right_joint_1" value="0"/>
+    <joint name="right_joint_2" value="0"/>
+    <joint name="right_joint_3" value="0"/>
+    <joint name="right_joint_4" value="0"/>
+    <joint name="right_joint_5" value="0"/>
+    <joint name="right_joint_6" value="0"/>
+  </group_state>
+
+	<!-- Disable adjacent link collisions -->
+  <disable_collisions link1="left_J1" link2="left_J2" reason="Adjacent"/>
+  <disable_collisions link1="left_J2" link2="left_J3" reason="Adjacent"/>
+  <disable_collisions link1="left_J3" link2="left_J4" reason="Adjacent"/>
+  <disable_collisions link1="left_J4" link2="left_J5" reason="Adjacent"/>
+  <disable_collisions link1="left_J5" link2="left_J6" reason="Adjacent"/>
+  <disable_collisions link1="left_base_link" link2="left_J1" reason="Adjacent"/>
+
+  <disable_collisions link1="right_J1" link2="right_J2" reason="Adjacent"/>
+  <disable_collisions link1="right_J2" link2="right_J3" reason="Adjacent"/>
+  <disable_collisions link1="right_J3" link2="right_J4" reason="Adjacent"/>
+  <disable_collisions link1="right_J4" link2="right_J5" reason="Adjacent"/>
+  <disable_collisions link1="right_J5" link2="right_J6" reason="Adjacent"/>
+  <disable_collisions link1="right_base_link" link2="right_J1" reason="Adjacent"/>
+</robot>
