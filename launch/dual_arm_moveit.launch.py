@@ -59,6 +59,11 @@ def generate_launch_description():
         },
     }
 
+    joint_limits_file = os.path.join(pkg, 'config', 'joint_limits.yaml')
+    with open(joint_limits_file, 'r') as f:
+        joint_limits_yaml = yaml.safe_load(f)
+    robot_description_planning = {'robot_description_planning': joint_limits_yaml}
+
     ompl_yaml_file = os.path.join(pkg, 'config', 'ompl_planning.yaml')
     with open(ompl_yaml_file, 'r') as f:
         ompl_yaml = yaml.safe_load(f)
@@ -91,6 +96,7 @@ def generate_launch_description():
         robot_description,
         robot_description_semantic,
         kinematics,
+        robot_description_planning,
         trajectory_execution,
         planning_pipelines,
         {'use_sim_time': False},
