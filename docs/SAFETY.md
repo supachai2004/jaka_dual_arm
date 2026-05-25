@@ -31,9 +31,11 @@
 | Rule | Detail |
 |------|--------|
 | Simulation first | Always verify a new motion in RViz simulation before executing on real hardware |
+| Confirm real-robot mode | Check coordinator startup log: `JAKA left driver ready` / `JAKA right driver ready`. If you see `running simulation only`, the physical robots are NOT receiving commands |
 | Low speed first | For any new target configuration use VEL ≤ 0.1, ACC ≤ 0.1 (10%) |
 | Incremental testing | Test in small position deltas (≤ 5 cm per command) before attempting large motions |
 | Collision object active | Never remove the `payload` collision object from the planning scene while arms are moving |
+| Namespace verification | Before starting the coordinator with real robots, confirm `ros2 service list \| grep jaka` shows both `/left/jaka_driver/joint_move` and `/right/jaka_driver/joint_move`. A missing namespace means that arm will not move |
 
 ---
 
@@ -44,13 +46,15 @@
 This is the first action to take for any unexpected behaviour.
 
 ```
-Step 1 — Go to Terminal 2 (coordinator)
+Step 1 — Go to Terminal 2/4 (coordinator)
 Step 2 — Press Ctrl-C
 Step 3 — Confirm the node exits (no more log output)
 Step 4 — Verify robots are stationary
 ```
 
 MoveIt's controller will hold the last joint position after the coordinator exits. The robots will **not** fall or drift because ros2_control maintains position control.
+
+> **Important when JAKA drivers are active:** Killing the coordinator does **not** abort a `joint_move` call that is already in-flight. The JAKA driver will continue moving the robot to the commanded position even after the coordinator exits. Use the physical E-stop (Section 2.2) to stop the robot immediately if needed.
 
 ### 2.2 Hardware E-stop
 
@@ -256,15 +260,23 @@ Complete before every session:
 - [ ] Both robot bases bolted securely
 - [ ] All cables routed clear of the motion envelope
 - [ ] No personnel or tools inside the 2 m safety zone
-- [ ] E-stop button tested and functional
+- [ ] E-stop button tested and functional — physically press and release before each session
 - [ ] Both JAKA controllers powered on, no fault LEDs
+- [ ] Both robot controllers reachable: `ping 192.168.0.2` and `ping 192.168.0.1` reply
 
-**Software:**
+**Software — simulation mode:**
 - [ ] ROS2 environment sourced correctly
 - [ ] `dual_arm_moveit.launch.py` running, RViz shows robot model
 - [ ] `coordinator` running, "Ready!" message confirmed
 - [ ] (TCP) Robot clients connected and heartbeat confirmed in log
-- [ ] First test motion planned in RViz before execution
+
+**Software — real robot mode (additional checks):**
+- [ ] Both `jaka_driver` nodes started with correct namespaces (`/left`, `/right`) and IP addresses
+- [ ] `ros2 service list | grep jaka` shows `/left/jaka_driver/joint_move` **and** `/right/jaka_driver/joint_move`
+- [ ] Coordinator startup log shows `JAKA left driver ready` **and** `JAKA right driver ready` — NOT `running simulation only`
+- [ ] First test motion verified in RViz simulation before executing on real hardware
+- [ ] VEL and ACC set to ≤ 10% for initial session
+- [ ] A second person present to monitor robot motion and operate E-stop if needed
 
 **Payload:**
 - [ ] Object mass ≤ 12 kg (within per-arm limit)
@@ -306,9 +318,11 @@ Complete before every session:
 | กฎ | รายละเอียด |
 |----|-----------|
 | จำลองก่อนเสมอ | ตรวจสอบการเคลื่อนที่ใหม่ใน RViz ก่อนรันบนฮาร์ดแวร์จริงเสมอ |
+| ยืนยันโหมดหุ่นยนต์จริง | ตรวจสอบ log เริ่มต้น: `JAKA left driver ready` / `JAKA right driver ready` หากเห็น `running simulation only` หุ่นยนต์จริงไม่รับคำสั่ง |
 | ความเร็วต่ำก่อน | ใช้ VEL ≤ 0.1, ACC ≤ 0.1 (10%) สำหรับ configuration ใหม่ |
 | ทดสอบแบบค่อยเป็นค่อยไป | ทดสอบด้วย delta ตำแหน่งเล็กน้อย (≤ 5 ซม. ต่อคำสั่ง) |
 | Collision object ต้องใช้งานอยู่ | อย่าลบ collision object `payload` ออกจาก planning scene ขณะแขนเคลื่อนที่ |
+| ตรวจสอบ namespace | ก่อนเปิด coordinator กับหุ่นยนต์จริง ยืนยันว่า `ros2 service list \| grep jaka` แสดง `/left/jaka_driver/joint_move` และ `/right/jaka_driver/joint_move` |
 
 ---
 
@@ -319,13 +333,15 @@ Complete before every session:
 นี่คือการดำเนินการแรกสำหรับพฤติกรรมที่ไม่คาดคิด
 
 ```
-ขั้นตอนที่ 1 — ไปที่ Terminal 2 (coordinator)
+ขั้นตอนที่ 1 — ไปที่ Terminal 2/4 (coordinator)
 ขั้นตอนที่ 2 — กด Ctrl-C
 ขั้นตอนที่ 3 — ยืนยันว่าโหนดออก (ไม่มี log output อีกต่อไป)
 ขั้นตอนที่ 4 — ตรวจสอบว่าหุ่นยนต์นิ่ง
 ```
 
 MoveIt's controller จะค้างไว้ที่ตำแหน่งข้อต่อสุดท้ายหลัง coordinator ออก หุ่นยนต์จะ **ไม่** ตก ros2_control ยังคง position control ไว้
+
+> **สำคัญเมื่อ JAKA drivers ทำงานอยู่:** การกด Ctrl-C จะ **ไม่** หยุด `joint_move` call ที่กำลังดำเนินอยู่ JAKA driver จะเคลื่อนหุ่นยนต์ต่อไปจนถึงตำแหน่งที่สั่งไว้แม้ coordinator จะปิดแล้ว ใช้ E-stop ฮาร์ดแวร์ (ส่วน 2.2) เพื่อหยุดทันที
 
 ### 2.2 E-stop ฮาร์ดแวร์
 
@@ -503,15 +519,23 @@ def robot_client(host, port, side):  # side = 'left' หรือ 'right'
 - [ ] ฐานหุ่นยนต์ทั้งสองยึดอย่างแน่นหนา
 - [ ] สายทุกเส้นวางอยู่นอกพื้นที่การเคลื่อนที่
 - [ ] ไม่มีบุคลากรหรือเครื่องมือในเขตปลอดภัย 2 เมตร
-- [ ] ปุ่ม E-stop ทดสอบแล้วและทำงานได้
+- [ ] ปุ่ม E-stop ทดสอบแล้วและทำงานได้ — กดและปล่อยก่อนทุก session
 - [ ] คอนโทรลเลอร์ JAKA ทั้งสองเปิดแล้ว ไม่มีไฟ fault
+- [ ] `ping 192.168.0.2` และ `ping 192.168.0.1` ตอบสนอง
 
-**ซอฟต์แวร์:**
+**ซอฟต์แวร์ — โหมดจำลอง:**
 - [ ] source ROS2 environment ถูกต้อง
 - [ ] `dual_arm_moveit.launch.py` ทำงาน RViz แสดงโมเดลหุ่นยนต์
 - [ ] `coordinator` ทำงาน ยืนยันข้อความ "Ready!"
 - [ ] (TCP) ไคลเอนต์หุ่นยนต์เชื่อมต่อและ heartbeat ยืนยันใน log
-- [ ] วางแผนการเคลื่อนที่ทดสอบครั้งแรกใน RViz ก่อนดำเนินการ
+
+**ซอฟต์แวร์ — โหมดหุ่นยนต์จริง (เพิ่มเติม):**
+- [ ] `jaka_driver` ทั้งสองตัวเปิดด้วย namespace ที่ถูกต้อง (`/left`, `/right`) และ IP ที่ถูกต้อง
+- [ ] `ros2 service list | grep jaka` แสดง `/left/jaka_driver/joint_move` **และ** `/right/jaka_driver/joint_move`
+- [ ] coordinator แสดง `JAKA left driver ready` **และ** `JAKA right driver ready` — ไม่ใช่ `running simulation only`
+- [ ] ตรวจสอบการเคลื่อนที่ครั้งแรกใน RViz ก่อนดำเนินการกับหุ่นยนต์จริง
+- [ ] VEL และ ACC ตั้งไว้ที่ ≤ 10% สำหรับ session แรก
+- [ ] มีบุคคลที่สองคอยดูหุ่นยนต์และพร้อมกด E-stop
 
 **Payload:**
 - [ ] น้ำหนักวัตถุ ≤ 12 กก. (ภายในขีดจำกัดต่อแขน)

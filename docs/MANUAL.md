@@ -43,7 +43,43 @@ ros2 launch jaka_dual_arm dual_arm_moveit.launch.py
 
 Wait for RViz to open and show the robot model before proceeding.
 
-### Terminal 2 — Coordinator Node
+### Terminals 2 & 3 — JAKA Hardware Drivers (real robots only)
+
+> Skip this step for simulation. The coordinator auto-detects whether drivers are present.
+
+Each JAKA robot runs an independent `jaka_driver` node. They share the same executable, so they **must be started under different namespaces** (`/left` and `/right`). This is what makes their service names unique.
+
+```bash
+# Terminal 2 — Left arm driver  (IP 192.168.0.2)
+source /opt/ros/jazzy/setup.bash
+source ~/ros2_ws/install/setup.bash
+ros2 run jaka_driver jaka_driver \
+  --ros-args -r __ns:=/left -p ip:=192.168.0.2
+```
+
+```bash
+# Terminal 3 — Right arm driver  (IP 192.168.0.1)
+source /opt/ros/jazzy/setup.bash
+source ~/ros2_ws/install/setup.bash
+ros2 run jaka_driver jaka_driver \
+  --ros-args -r __ns:=/right -p ip:=192.168.0.1
+```
+
+After both drivers start, verify their services are visible:
+
+```bash
+ros2 service list | grep jaka
+```
+
+Expected output (at minimum):
+```
+/left/jaka_driver/joint_move
+/right/jaka_driver/joint_move
+```
+
+If you do not see these two lines, do not start the coordinator. See [Troubleshooting 5.7](#57-robot-not-moving--jaka-driver-service-not-found).
+
+### Terminal 4 (or 2 in simulation) — Coordinator Node
 
 ```bash
 source /opt/ros/jazzy/setup.bash
@@ -51,9 +87,11 @@ source ~/ros2_ws/install/setup.bash
 ros2 run jaka_dual_arm coordinator
 ```
 
-**Startup sequence:**
+**Startup sequence — simulation mode (no drivers):**
 ```
 [coordinator]: Waiting for MoveIt services...
+[coordinator]: JAKA left driver not available — running simulation only
+[coordinator]: JAKA right driver not available — running simulation only
 [coordinator]: Services ready — initialising grasp configuration.
 [coordinator]: Moving to init joint configuration...
 [coordinator]:   [exec] waiting for goal handle...
@@ -62,7 +100,24 @@ ros2 run jaka_dual_arm coordinator
 [coordinator]: Right flange @ world: (0.4000, -0.3000, 1.0000)
 [coordinator]: Object centre @ world: (0.4000, 0.0000, 1.0000)
 [coordinator]: Grip span: 0.6000 m
-[coordinator]: Collision box added: size=(0.54, 0.1, 0.1)  pos=(0.4000,0.0000,1.0000)
+[coordinator]: TCP server ready on :9090
+[coordinator]: Ready!  Publish PoseStamped (frame_id=world) to /object_target
+```
+
+**Startup sequence — real robot mode (both drivers running):**
+```
+[coordinator]: Waiting for MoveIt services...
+[coordinator]: JAKA left driver ready
+[coordinator]: JAKA right driver ready
+[coordinator]: Services ready — initialising grasp configuration.
+[coordinator]: Moving to init joint configuration...
+[coordinator]:   [exec] waiting for goal handle...
+[coordinator]:   [exec] goal accepted, waiting for result...
+[coordinator]: [jaka] both arms moved successfully
+[coordinator]: Left  flange @ world: (0.4000,  0.3000, 1.0000)
+[coordinator]: Right flange @ world: (0.4000, -0.3000, 1.0000)
+[coordinator]: Object centre @ world: (0.4000, 0.0000, 1.0000)
+[coordinator]: Grip span: 0.6000 m
 [coordinator]: TCP server ready on :9090
 [coordinator]: Ready!  Publish PoseStamped (frame_id=world) to /object_target
 ```
@@ -323,6 +378,62 @@ int main() {
 1. Check joint_state_broadcaster is running: `ros2 topic echo /joint_states`
 2. Verify INIT_LEFT / INIT_RIGHT in `coordinator.py` match your physical setup
 
+### 5.7 Robot not moving — JAKA driver service not found
+
+**Symptom:** Coordinator logs `JAKA left/right driver not available — running simulation only`. Physical robots do not move.
+
+**Diagnosis:**
+```bash
+ros2 service list | grep jaka
+```
+
+| Result | Cause |
+|--------|-------|
+| No output | `jaka_driver` nodes are not running |
+| `/jaka_driver/joint_move` (no prefix) | Driver started without namespace |
+| `/left/jaka_driver/joint_move` only | Right driver not started or crashed |
+
+**Fixes:**
+
+1. Driver not started — launch both drivers with the correct namespace flags:
+   ```bash
+   ros2 run jaka_driver jaka_driver \
+     --ros-args -r __ns:=/left -p ip:=192.168.0.2
+
+   ros2 run jaka_driver jaka_driver \
+     --ros-args -r __ns:=/right -p ip:=192.168.0.1
+   ```
+
+2. Driver started without namespace — stop the driver and restart with `-r __ns:=/left` or `-r __ns:=/right`. The coordinator expects exactly `/left/jaka_driver/joint_move` and `/right/jaka_driver/joint_move`.
+
+3. Driver running but service missing — the driver may have failed to connect to the robot IP. Check driver terminal for connection errors, then verify the robot controller is powered on and pingable:
+   ```bash
+   ping 192.168.0.2   # left arm
+   ping 192.168.0.1   # right arm
+   ```
+
+4. Coordinator already started before drivers — restart the coordinator after the drivers are confirmed ready.
+
+### 5.8 Robot not moving — joint_move service call fails
+
+**Symptom:** Coordinator logs `[jaka_left] joint_move failed: ret=X msg=...` or `[jaka_right] joint_move failed`.
+
+**Causes and fixes:**
+
+| ret value | Meaning | Fix |
+|-----------|---------|-----|
+| `-1` | Robot controller error / fault | Check fault LEDs on JAKA controller box; clear fault via JAKA teach pendant |
+| `0` returned but no motion | `ret=0` is success — robot may have already been at the target | Verify joint angles differ from current position |
+| Timeout (result = None) | Service call took >30 s | Check network; restart driver |
+
+To inspect the raw service response manually:
+```bash
+ros2 service call /left/jaka_driver/joint_move jaka_msgs/srv/Move \
+  "{pose: [0.524, 2.443, 1.745, -1.047, 3.403, 0.0], has_ref: false,
+    ref_joint: [], mvvelo: 0.1, mvacc: 0.1, mvtime: 0.0, mvradii: 0.0,
+    coord_mode: 0, index: 0}"
+```
+
 ---
 
 ## 6. Tuning INIT_LEFT and INIT_RIGHT
@@ -438,70 +549,127 @@ ros2 launch jaka_dual_arm dual_arm_moveit.launch.py
 
 ## 8. Connecting Real JAKA Robots
 
-The current `ros2_controllers.yaml` uses the **mock hardware interface** (simulation). To control real JAKA A12 robots:
+The coordinator sends motion commands to physical JAKA robots via the `jaka_msgs/srv/Move` service — **independently of ros2_control**. The mock controllers still run (keeping RViz synchronised), while the real robots receive final joint positions directly over the network.
 
-### Step 1 — Install JAKA ROS2 driver
+### 8.1 How it works
+
+After MoveIt plans and executes on the mock controllers, the coordinator:
+1. Extracts the **final joint positions** from the planned trajectory.
+2. Calls `/left/jaka_driver/joint_move` and `/right/jaka_driver/joint_move` **simultaneously** in separate threads.
+3. Waits for both calls to return before reporting success.
+
+The `Move` service request uses joint-space mode (`coord_mode=0`) with `mvvelo=0.3` and `mvacc=0.3`. To change speed, edit `_send_to_jaka()` in `coordinator.py`.
+
+### 8.2 Step-by-step startup for real robots
+
+#### Step 1 — Build the JAKA driver package
 
 ```bash
-# Follow JAKA's official ROS2 driver installation guide
-# Typically:
-cd ~/ros2_ws/src
-git clone https://github.com/JAKACobot/jaka_ros2_driver.git
 cd ~/ros2_ws
-colcon build --packages-select jaka_ros2_driver
+colcon build --packages-select jaka_msgs jaka_driver
 source install/setup.bash
 ```
 
-### Step 2 — Configure robot IP addresses
+#### Step 2 — Power on both robot controllers
 
-In the JAKA driver config, set the controller IP for each arm:
-```yaml
-# e.g., jaka_driver_left.yaml
-robot_ip: "192.168.1.10"   # Left arm controller IP
+- Left arm:  IP `192.168.0.2`
+- Right arm: IP `192.168.0.1`
 
-# jaka_driver_right.yaml
-robot_ip: "192.168.1.11"   # Right arm controller IP
+Verify network connectivity:
+```bash
+ping 192.168.0.2   # left arm — expect <1 ms on local subnet
+ping 192.168.0.1   # right arm
 ```
 
-### Step 3 — Replace mock hardware with real hardware interface
+#### Step 3 — Launch both JAKA drivers with namespaces
 
-In `urdf/dual_arm.urdf.xacro`, change the `hardware` plugin from mock to real:
-```xml
-<!-- Before (simulation) -->
-<plugin>mock_components/GenericSystem</plugin>
-
-<!-- After (real JAKA) -->
-<plugin>jaka_hardware_interface/JAKAHardwareInterface</plugin>
-```
-
-### Step 4 — Verify joint state feedback
+Both robots run the same `jaka_driver` executable. The `-r __ns:=/left` and `-r __ns:=/right` flags put each node into its own namespace, making their service names unique.
 
 ```bash
-ros2 topic echo /joint_states
+# Terminal 2 — Left arm
+ros2 run jaka_driver jaka_driver \
+  --ros-args -r __ns:=/left -p ip:=192.168.0.2
+
+# Terminal 3 — Right arm
+ros2 run jaka_driver jaka_driver \
+  --ros-args -r __ns:=/right -p ip:=192.168.0.1
 ```
 
-Confirm all 12 joints report the correct current position matching the physical robot.
+#### Step 4 — Verify services
 
-### Step 5 — Lower VEL/ACC for first run
+```bash
+ros2 service list | grep jaka
+```
 
+You must see both of these before proceeding:
+```
+/left/jaka_driver/joint_move
+/right/jaka_driver/joint_move
+```
+
+If either is missing, see [Troubleshooting 5.7](#57-robot-not-moving--jaka-driver-service-not-found).
+
+#### Step 5 — Launch MoveIt2 stack (Terminal 1)
+
+```bash
+ros2 launch jaka_dual_arm dual_arm_moveit.launch.py
+```
+
+Wait for RViz to open.
+
+#### Step 6 — Launch coordinator (Terminal 4)
+
+```bash
+ros2 run jaka_dual_arm coordinator
+```
+
+Confirm these lines appear at startup:
+```
+[coordinator]: JAKA left driver ready
+[coordinator]: JAKA right driver ready
+```
+
+If you see `not available` instead, the coordinator will operate in simulation-only mode and the physical robots will not move.
+
+#### Step 7 — Lower VEL/ACC for initial tests
+
+Edit `coordinator.py` before the first real run:
 ```python
-# coordinator.py
-VEL = 0.05   # 5% velocity for first run on real hardware
+VEL = 0.05   # 5 % — use for first run on real hardware
 ACC = 0.05
 ```
 
-### Step 6 — Test with small motions
+Rebuild and restart:
+```bash
+colcon build --packages-select jaka_dual_arm
+source install/setup.bash
+ros2 run jaka_dual_arm coordinator
+```
 
-Send a very small target delta (2–3 cm) and observe the physical motion before testing larger moves.
+#### Step 8 — Test with small motions
 
-### Safety checklist before real-robot operation
+Send a 2–3 cm delta and observe both physical robots before attempting larger moves:
+```bash
+ros2 topic pub --once /object_target geometry_msgs/msg/PoseStamped \
+  "{header: {frame_id: world}, pose: {position: {x: 0.02, y: 0.0, z: 0.0}, orientation: {w: 1.0}}}"
+```
 
-- [ ] E-stop button accessible at all times
+The coordinator log should show:
+```
+[coordinator]: [jaka] both arms moved successfully
+[coordinator]: Motion SUCCEEDED
+```
+
+### 8.3 Pre-motion checklist for real robots
+
+- [ ] E-stop button accessible and tested
 - [ ] Workspace cleared of all obstacles and personnel
 - [ ] Joint limits verified in `joint_limits.yaml`
 - [ ] VEL/ACC set to ≤10% for initial tests
-- [ ] Both robot controllers show no fault LEDs
-- [ ] TCP heartbeat test passed with robot clients connected
+- [ ] Both robot controllers powered on, no fault LEDs
+- [ ] `ros2 service list | grep jaka` shows both `/left` and `/right` services
+- [ ] Coordinator logs `JAKA left driver ready` and `JAKA right driver ready`
+- [ ] Motion verified in RViz simulation before executing on real hardware
 
 ---
 
@@ -539,7 +707,31 @@ ros2 launch jaka_dual_arm dual_arm_moveit.launch.py
 
 รอจนกว่า RViz จะเปิดและแสดงโมเดลหุ่นยนต์ก่อนดำเนินการต่อ
 
-### Terminal 2 — Coordinator Node
+### Terminal 2 & 3 — JAKA Hardware Drivers (หุ่นยนต์จริงเท่านั้น)
+
+> ข้ามขั้นตอนนี้สำหรับโหมดจำลอง coordinator จะตรวจสอบอัตโนมัติ
+
+JAKA driver ทั้งสองตัวใช้ executable เดียวกัน ต้องใช้ **namespace** เพื่อแยกชื่อ service
+
+```bash
+# Terminal 2 — แขนซ้าย (192.168.0.2)
+ros2 run jaka_driver jaka_driver \
+  --ros-args -r __ns:=/left -p ip:=192.168.0.2
+
+# Terminal 3 — แขนขวา (192.168.0.1)
+ros2 run jaka_driver jaka_driver \
+  --ros-args -r __ns:=/right -p ip:=192.168.0.1
+```
+
+ตรวจสอบ services ก่อนเปิด coordinator:
+```bash
+ros2 service list | grep jaka
+# ต้องเห็น:
+# /left/jaka_driver/joint_move
+# /right/jaka_driver/joint_move
+```
+
+### Terminal 4 (หรือ 2 ในโหมดจำลอง) — Coordinator Node
 
 ```bash
 source /opt/ros/jazzy/setup.bash
@@ -547,8 +739,22 @@ source ~/ros2_ws/install/setup.bash
 ros2 run jaka_dual_arm coordinator
 ```
 
-รอจนเห็น:
+**โหมดจำลอง (ไม่มี driver):**
 ```
+[coordinator]: JAKA left driver not available — running simulation only
+[coordinator]: JAKA right driver not available — running simulation only
+[coordinator]: Services ready — initialising grasp configuration.
+...
+[coordinator]: Ready!  Publish PoseStamped (frame_id=world) to /object_target
+```
+
+**โหมดหุ่นยนต์จริง (มี driver ทั้งสองตัว):**
+```
+[coordinator]: JAKA left driver ready
+[coordinator]: JAKA right driver ready
+[coordinator]: Services ready — initialising grasp configuration.
+...
+[coordinator]: [jaka] both arms moved successfully
 [coordinator]: Ready!  Publish PoseStamped (frame_id=world) to /object_target
 ```
 
@@ -731,38 +937,105 @@ ros2 launch jaka_dual_arm dual_arm_moveit.launch.py
 
 ## 8. การเชื่อมต่อหุ่นยนต์ JAKA จริง
 
-### ขั้นตอนที่ 1 — ติดตั้ง JAKA ROS2 driver
+coordinator ส่งคำสั่งไปยังหุ่นยนต์ JAKA จริงผ่าน service `jaka_msgs/srv/Move` **โดยตรง** โดยไม่ผ่าน ros2_control mock controllers ยังทำงานอยู่เพื่อให้ RViz อัปเดต ส่วนหุ่นยนต์จริงรับตำแหน่งข้อต่อสุดท้ายผ่านเครือข่าย
+
+### 8.1 วิธีการทำงาน
+
+หลัง MoveIt วางแผนและดำเนินการบน mock controllers coordinator จะ:
+1. ดึง **ตำแหน่งข้อต่อสุดท้าย** จาก trajectory ที่วางแผนไว้
+2. เรียก `/left/jaka_driver/joint_move` และ `/right/jaka_driver/joint_move` **พร้อมกัน** ใน thread แยกกัน
+3. รอให้ทั้งสอง call กลับมาก่อนรายงานผล
+
+### 8.2 ขั้นตอนการเริ่มต้นสำหรับหุ่นยนต์จริง
+
+#### ขั้นตอนที่ 1 — Build JAKA driver
 
 ```bash
-cd ~/ros2_ws/src
-git clone https://github.com/JAKACobot/jaka_ros2_driver.git
 cd ~/ros2_ws
-colcon build --packages-select jaka_ros2_driver
+colcon build --packages-select jaka_msgs jaka_driver
 source install/setup.bash
 ```
 
-### ขั้นตอนที่ 2 — กำหนด IP ของหุ่นยนต์
+#### ขั้นตอนที่ 2 — เปิดคอนโทรลเลอร์หุ่นยนต์และตรวจสอบเครือข่าย
 
-```yaml
-robot_ip: "192.168.1.10"   # IP คอนโทรลเลอร์แขนซ้าย
-robot_ip: "192.168.1.11"   # IP คอนโทรลเลอร์แขนขวา
+```bash
+ping 192.168.0.2   # แขนซ้าย
+ping 192.168.0.1   # แขนขวา
 ```
 
-### ขั้นตอนที่ 3 — เปลี่ยน hardware interface
+#### ขั้นตอนที่ 3 — เปิด JAKA drivers พร้อม namespace
 
-ใน `urdf/dual_arm.urdf.xacro` เปลี่ยน plugin จาก mock เป็น real
+```bash
+# Terminal 2 — แขนซ้าย
+ros2 run jaka_driver jaka_driver \
+  --ros-args -r __ns:=/left -p ip:=192.168.0.2
 
-### ขั้นตอนที่ 4 — ลด VEL/ACC สำหรับการทดสอบครั้งแรก
+# Terminal 3 — แขนขวา
+ros2 run jaka_driver jaka_driver \
+  --ros-args -r __ns:=/right -p ip:=192.168.0.1
+```
+
+#### ขั้นตอนที่ 4 — ตรวจสอบ services
+
+```bash
+ros2 service list | grep jaka
+# ต้องเห็น:
+# /left/jaka_driver/joint_move
+# /right/jaka_driver/joint_move
+```
+
+หากไม่เห็น ดูหัวข้อแก้ปัญหา 5.7
+
+#### ขั้นตอนที่ 5 — เปิด MoveIt2 และ coordinator
+
+```bash
+# Terminal 1
+ros2 launch jaka_dual_arm dual_arm_moveit.launch.py
+
+# Terminal 4
+ros2 run jaka_dual_arm coordinator
+```
+
+ยืนยันว่าเห็น:
+```
+[coordinator]: JAKA left driver ready
+[coordinator]: JAKA right driver ready
+```
+
+#### ขั้นตอนที่ 6 — ลด VEL/ACC สำหรับการทดสอบครั้งแรก
 
 ```python
+# coordinator.py
 VEL = 0.05   # 5% สำหรับการทดสอบครั้งแรก
 ACC = 0.05
 ```
 
+```bash
+colcon build --packages-select jaka_dual_arm
+source install/setup.bash
+ros2 run jaka_dual_arm coordinator
+```
+
+#### ขั้นตอนที่ 7 — ทดสอบด้วยการเคลื่อนที่เล็กน้อย
+
+```bash
+ros2 topic pub --once /object_target geometry_msgs/msg/PoseStamped \
+  "{header: {frame_id: world}, pose: {position: {x: 0.02, y: 0.0, z: 0.0}, orientation: {w: 1.0}}}"
+```
+
+ดู log:
+```
+[coordinator]: [jaka] both arms moved successfully
+[coordinator]: Motion SUCCEEDED
+```
+
 ### Checklist ก่อนใช้กับหุ่นยนต์จริง
 
-- [ ] ปุ่ม E-stop เข้าถึงได้ตลอดเวลา
+- [ ] ปุ่ม E-stop เข้าถึงและทดสอบแล้ว
 - [ ] พื้นที่ทำงานปลอดคนและสิ่งกีดขวาง
 - [ ] ตรวจสอบ joint limits ใน `joint_limits.yaml`
 - [ ] VEL/ACC ≤ 10% สำหรับการทดสอบเริ่มต้น
 - [ ] คอนโทรลเลอร์หุ่นยนต์ทั้งสองไม่มีไฟ fault
+- [ ] `ros2 service list | grep jaka` แสดง services ทั้ง `/left` และ `/right`
+- [ ] coordinator แสดง `JAKA left driver ready` และ `JAKA right driver ready`
+- [ ] ตรวจสอบการเคลื่อนที่ใน RViz ก่อนดำเนินการกับหุ่นยนต์จริง
