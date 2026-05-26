@@ -1,6 +1,6 @@
 Panels:
   - Class: rviz_common/Displays
-    Help Height: 138
+    Help Height: 70
     Name: Displays
     Property Tree Widget:
       Expanded:
@@ -8,8 +8,10 @@ Panels:
         - /Status1
         - /RobotModel1
         - /TF1
+        - /TF1/Frames1
+        - /TF1/Tree1
       Splitter Ratio: 0.5
-    Tree Height: 1136
+    Tree Height: 70
   - Class: rviz_common/Selection
     Name: Selection
   - Class: rviz_common/Tool Properties
@@ -161,37 +163,37 @@ Visualization Manager:
       Filter (whitelist): ""
       Frame Timeout: 15
       Frames:
-        All Enabled: true
+        All Enabled: false
         left_J1:
-          Value: true
+          Value: false
         left_J2:
-          Value: true
+          Value: false
         left_J3:
-          Value: true
+          Value: false
         left_J4:
-          Value: true
+          Value: false
         left_J5:
-          Value: true
+          Value: false
         left_J6:
-          Value: true
+          Value: false
         left_base_link:
-          Value: true
+          Value: false
         left_flange:
           Value: true
         right_J1:
-          Value: true
+          Value: false
         right_J2:
-          Value: true
+          Value: false
         right_J3:
-          Value: true
+          Value: false
         right_J4:
-          Value: true
+          Value: false
         right_J5:
-          Value: true
+          Value: false
         right_J6:
-          Value: true
+          Value: false
         right_base_link:
-          Value: true
+          Value: false
         right_flange:
           Value: true
         world:
@@ -223,6 +225,248 @@ Visualization Manager:
                           {}
       Update Interval: 0
       Value: true
+    - Acceleration_Scaling_Factor: 0.1
+      Class: moveit_rviz_plugin/MotionPlanning
+      Enabled: true
+      Move Group Namespace: ""
+      MoveIt_Allow_Approximate_IK: false
+      MoveIt_Allow_External_Program: false
+      MoveIt_Allow_Replanning: false
+      MoveIt_Allow_Sensor_Positioning: false
+      MoveIt_Planning_Attempts: 10
+      MoveIt_Planning_Time: 5
+      MoveIt_Use_Cartesian_Path: false
+      MoveIt_Use_Constraint_Aware_IK: false
+      MoveIt_Workspace:
+        Center:
+          X: 0
+          Y: 0
+          Z: 0
+        Size:
+          X: 2
+          Y: 2
+          Z: 2
+      Name: MotionPlanning
+      Planned Path:
+        Color Enabled: false
+        Interrupt Display: false
+        Links:
+          All Links Enabled: true
+          Expand Joint Details: false
+          Expand Link Details: false
+          Expand Tree: false
+          Link Tree Style: Links in Alphabetic Order
+          left_J1:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          left_J2:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          left_J3:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          left_J4:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          left_J5:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          left_J6:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          left_base_link:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+          left_flange:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+          right_J1:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          right_J2:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          right_J3:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          right_J4:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          right_J5:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          right_J6:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          right_base_link:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+          right_flange:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+          world:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+        Loop Animation: false
+        Robot Alpha: 0.5
+        Robot Color: 150; 50; 150
+        Show Robot Collision: false
+        Show Robot Visual: true
+        Show Trail: false
+        State Display Time: 3x
+        Trail Step Size: 1
+        Trajectory Topic: /display_planned_path
+        Use Sim Time: false
+      Planning Metrics:
+        Payload: 1
+        Show Joint Torques: false
+        Show Manipulability: false
+        Show Manipulability Index: false
+        Show Weight Limit: false
+        TextHeight: 0.07999999821186066
+      Planning Request:
+        Colliding Link Color: 255; 0; 0
+        Goal State Alpha: 1
+        Goal State Color: 250; 128; 0
+        Interactive Marker Size: 0
+        Joint Violation Color: 255; 0; 255
+        Planning Group: right_arm
+        Query Goal State: true
+        Query Start State: false
+        Show Workspace: false
+        Start State Alpha: 1
+        Start State Color: 0; 255; 0
+      Planning Scene Topic: /monitored_planning_scene
+      Robot Description: robot_description
+      Scene Geometry:
+        Scene Alpha: 0.8999999761581421
+        Scene Color: 50; 230; 50
+        Scene Display Time: 0.009999999776482582
+        Show Scene Geometry: true
+        Voxel Coloring: Z-Axis
+        Voxel Rendering: Occupied Voxels
+      Scene Robot:
+        Attached Body Color: 150; 50; 150
+        Links:
+          All Links Enabled: true
+          Expand Joint Details: false
+          Expand Link Details: false
+          Expand Tree: false
+          Link Tree Style: Links in Alphabetic Order
+          left_J1:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          left_J2:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          left_J3:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          left_J4:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          left_J5:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          left_J6:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          left_base_link:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+          left_flange:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+          right_J1:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          right_J2:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          right_J3:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          right_J4:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          right_J5:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          right_J6:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          right_base_link:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+          right_flange:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+          world:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+        Robot Alpha: 1
+        Show Robot Collision: false
+        Show Robot Visual: true
+      Value: true
+      Velocity_Scaling_Factor: 0.1
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
@@ -269,7 +513,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz_default_plugins/Orbit
-      Distance: 4.644041061401367
+      Distance: 6.524543285369873
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -284,18 +528,22 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.7603980302810669
+      Pitch: 0.6953980922698975
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 5.138596057891846
+      Yaw: 0.10540829598903656
     Saved: ~
 Window Geometry:
+  "":
+    collapsed: false
+  " - Trajectory Slider":
+    collapsed: false
   Displays:
     collapsed: false
-  Height: 1654
+  Height: 795
   Hide Left Dock: false
   Hide Right Dock: false
-  QMainWindow State: 000000ff00000000fd0000000400000000000001f40000056cfc0200000008fb0000001200530065006c0065006300740069006f006e00000001e10000009b000000b200fffffffb0000001e0054006f006f006c002000500072006f007000650072007400690065007302000001ed000001df00000185000000a3fb000000120056006900650077007300200054006f006f02000001df000002110000018500000122fb000000200054006f006f006c002000500072006f0070006500720074006900650073003203000002880000011d000002210000017afb000000100044006900730070006c00610079007301000000700000056c0000018600fffffffb0000002000730065006c0065006300740069006f006e00200062007500660066006500720200000138000000aa0000023a00000294fb00000014005700690064006500530074006500720065006f02000000e6000000d2000003ee0000030bfb0000000c004b0069006e0065006300740200000186000001060000030c00000261000000010000015d0000056cfc0200000003fb0000001e0054006f006f006c002000500072006f00700065007200740069006500730100000041000000780000000000000000fb0000000a0056006900650077007301000000700000056c0000013800fffffffb0000001200530065006c0065006300740069006f006e010000025a000000b200000000000000000000000200000490000000a9fc0100000001fb0000000a00560069006500770073030000004e00000080000002e1000001970000000300000c000000005efc0100000002fb0000000800540069006d0065010000000000000c000000047a00fffffffb0000000800540069006d00650100000000000004500000000000000000000008970000056c00000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
+  QMainWindow State: 000000ff00000000fd0000000400000000000001f400000272fc020000000afb0000001200530065006c0065006300740069006f006e00000001e10000009b0000005d00fffffffb0000001e0054006f006f006c002000500072006f007000650072007400690065007302000001ed000001df00000185000000a3fb000000120056006900650077007300200054006f006f02000001df000002110000018500000122fb000000200054006f006f006c002000500072006f0070006500720074006900650073003203000002880000011d000002210000017afb000000100044006900730070006c006100790073010000003f000000cc000000cc00fffffffb0000002000730065006c0065006300740069006f006e00200062007500660066006500720200000138000000aa0000023a00000294fb00000014005700690064006500530074006500720065006f02000000e6000000d2000003ee0000030bfb0000000c004b0069006e0065006300740200000186000001060000030c00000261fb000000280020002d0020005400720061006a006500630074006f0072007900200053006c00690064006500720000000000ffffffff0000004400fffffffbffffffff0100000111000001a00000019500ffffff000000010000015d00000272fc0200000003fb0000001e0054006f006f006c002000500072006f00700065007200740069006500730100000041000000780000000000000000fb0000000a00560069006500770073010000003f00000272000000a900fffffffb0000001200530065006c0065006300740069006f006e010000025a000000b200000000000000000000000200000490000000a9fc0100000001fb0000000a00560069006500770073030000004e00000080000002e10000019700000003000005ae00000045fc0100000002fb0000000800540069006d00650100000000000005ae0000026f00fffffffb0000000800540069006d00650100000000000004500000000000000000000002510000027200000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
   Selection:
     collapsed: false
   Time:
@@ -304,6 +552,6 @@ Window Geometry:
     collapsed: false
   Views:
     collapsed: false
-  Width: 3072
-  X: 0
-  Y: 0
+  Width: 1454
+  X: 82
+  Y: 32

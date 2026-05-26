@@ -28,19 +28,19 @@
   <end_effector name="right_ee" parent_link="right_flange" group="right_arm"/>
 
   <group_state name="home" group="both_arms">
-    <joint name="left_joint_1" value="-0.349"/>
-    <joint name="left_joint_2" value="-2.618"/>
-    <joint name="left_joint_3" value="-0.873"/>
-    <joint name="left_joint_4" value="1.571"/>
-    <joint name="left_joint_5" value="3.142"/>
-    <joint name="left_joint_6" value="1.571"/>
-    <joint name="right_joint_1" value="0.349"/>
-    <joint name="right_joint_2" value="-0.524"/>
-  <joint name="right_joint_3" value="0.873"/>
-      <joint name="right_joint_4" value="-1.571"/>
-      <joint name="right_joint_5" value="0.0"/>
-      <joint name="right_joint_6" value="-1.571"/>
-    </group_state>
+    <joint name="left_joint_1" value="0.524"/>
+    <joint name="left_joint_2" value="2.443"/>
+    <joint name="left_joint_3" value="1.745"/>
+    <joint name="left_joint_4" value="-1.047"/>
+    <joint name="left_joint_5" value="3.403"/>
+    <joint name="left_joint_6" value="0.0"/>
+    <joint name="right_joint_1" value="2.618"/>
+    <joint name="right_joint_2" value="0.698"/>
+    <joint name="right_joint_3" value="-1.745"/>
+    <joint name="right_joint_4" value="1.047"/>
+    <joint name="right_joint_5" value="-0.262"/>
+    <joint name="right_joint_6" value="0.0"/>
+  </group_state>
 	<!-- Disable adjacent link collisions -->
   <disable_collisions link1="left_J1" link2="left_J2" reason="Adjacent"/>
   <disable_collisions link1="left_J2" link2="left_J3" reason="Adjacent"/>
